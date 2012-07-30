@@ -16,7 +16,8 @@ describe VmTranslator do
     subject { @vm_translator.output_file }
     
     context "when the input is a directory name" do
-      let(:input_name) { '/home/lion/Programming Projects/VMtranslator/spec/file_mocks/vms' }
+      before { subject.close }
+      let(:input_name) { 'D:/VMtranslator/spec/file_mocks/vms' }
           
       it "has the '.asm' extension" do
         File.extname(subject.path).should eq ".asm"
@@ -47,7 +48,7 @@ describe VmTranslator do
       
       context "when the input is a single file" do
         context "when the input file has 10 real lines" do
-          let(:input_name) { '/home/lion/Programming Projects/VMtranslator/spec/file_mocks/10_real_lines.vm' }
+          let(:input_name) { 'D:/VMtranslator/spec/file_mocks/10_real_lines.vm' }
 
           it "makes the output file have 20 lines" do 
             subject
@@ -61,7 +62,7 @@ describe VmTranslator do
         end
 
         context "when the input file has 5 real lines and 5 unsignificant lines" do
-          let(:input_name) { '/home/lion/Programming Projects/VMtranslator/spec/file_mocks/5_real_5_unsignificant_lines.vm' }
+          let(:input_name) { 'D:/VMtranslator/spec/file_mocks/5_real_5_unsignificant_lines.vm' }
 
           it "makes the output file have 10 lines" do 
             subject
@@ -72,12 +73,13 @@ describe VmTranslator do
             end
             output_file_lines.should eq 10
           end
+          
         end        
       end
       
       context "when the input is a directory" do
         context "when the first file has 10 real lines and the second has 5 real lines and 5 unsignificant lines" do
-          let(:input_name) { '/home/lion/Programming Projects/VMtranslator/spec/file_mocks/vms' }
+          let(:input_name) { 'D:/VMtranslator/spec/file_mocks/vms' }
           
           it "makes the output file have 30 lines" do
             subject
@@ -96,7 +98,7 @@ describe VmTranslator do
   end
   
   after(:each) do
-    File.delete @vm_translator.output_file.path
+    #File.delete @vm_translator.output_file.path
   end
 end
 

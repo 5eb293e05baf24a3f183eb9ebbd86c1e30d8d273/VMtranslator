@@ -24,7 +24,9 @@ class VmTranslator
   end
   
   def run
-    Dir.glob(@filenames) do |filename|  
+    @filenames = @filenames.gsub("\\", '/') 
+    
+    Dir.glob(@filenames) do |filename|      
       File.open(filename).each_line do |line|
         line = sanitize line
         next if line.empty?
@@ -50,7 +52,7 @@ class VmTranslator
         when :RETURN
           translation = @translator.ret
         end
-   
+        
         @output_file.print translation
       end     
     end

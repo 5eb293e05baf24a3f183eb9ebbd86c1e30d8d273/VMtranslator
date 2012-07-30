@@ -425,5 +425,23 @@ describe Translator do
     end    
   end
   
+  describe "call" do
+    subject { @translator.call(name, nArgs) }
+    
+    context "when the name is 'Class1.set'"do
+      let(:name) { "Class1.set" }
+      
+      context "when the nArgs is '2'" do
+        let(:nArgs) { "2" }
+        
+        it "returns a correct translation" do
+          pending
+          subject.should eq ""
+        end
+        
+      end
+    end
+  end
+  
 end
 

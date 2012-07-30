@@ -53,8 +53,8 @@ class Translator
       when 'lt'
         jump = 'JLT'
       end
-      @unique_symbol_counter = @unique_symbol_counter + 1
-      "@SP\nAM=M-1\nD=M\n@SP\nAM=M-1\nD=M-D\n@SP\nA=M\nM=-1\n@U#{@unique_symbol_counter}\nD;#{jump}\n@SP\nA=M\nM=0\n(U#{@unique_symbol_counter})\n@SP\nM=M+1\n"  
+      unique_symbol_counter = next_unique_symbol_counter
+      "@SP\nAM=M-1\nD=M\n@SP\nAM=M-1\nD=M-D\n@SP\nA=M\nM=-1\n@U#{unique_symbol_counter}\nD;#{jump}\n@SP\nA=M\nM=0\n(U#{unique_symbol_counter})\n@SP\nM=M+1\n"  
     end
   end
   
@@ -110,5 +110,9 @@ class Translator
   
   def unary_operation? command
     true if ['neg', 'not'].include? command
+  end
+  
+  def next_unique_symbol_counter
+    @unique_symbol_counter = @unique_symbol_counter + 1
   end
 end
