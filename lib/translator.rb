@@ -81,16 +81,16 @@ class Translator
     end 
   end
   
-  def label str
-    "(#{str})\n"
+  def label(str, func_name)
+    "(#{func_name}$#{str})\n"
   end
   
-  def goto label
-    "@#{label}\n0;JMP\n"
+  def goto(label, func_name)
+    "@#{func_name}$#{label}\n0;JMP\n"
   end
   
-  def if_goto label
-    "@SP\nAM=M-1\nD=M\n@#{label}\nD;JNE\n"
+  def if_goto(label, func_name)
+    "@SP\nAM=M-1\nD=M\n@#{func_name}$#{label}\nD;JNE\n"
   end
   
   def function(name, nLocals)
@@ -101,6 +101,18 @@ class Translator
     "@LCL\nD=M\n@R15\nM=D\n" + "@5\nD=A\n@R15\nA=M-D\nD=M\n@R14\nM=D\n" + "@0\nD=A\n@ARG\nD=D+M\n@R13\nM=D\n@SP\nAM=M-1\nD=M\n@R13\nA=M\nM=D\n" +
     "@ARG\nD=M+1\n@SP\nM=D\n" + "@1\nD=A\n@R15\nA=M-D\nD=M\n@THAT\nM=D\n" + "@2\nD=A\n@R15\nA=M-D\nD=M\n@THIS\nM=D\n" + 
     "@3\nD=A\n@R15\nA=M-D\nD=M\n@ARG\nM=D\n" + "@4\nD=A\n@R15\nA=M-D\nD=M\n@LCL\nM=D\n" + "@R14\nA=M\n0;JMP\n"    
+  end
+  
+  def call(name, nArgs)
+    unique_symbol_counter = next_unique_symbol_counter
+    "@U#{unique_symbol_counter}\nD=A\n@SP\nA=M\nM=D\n@SP\nM=M+1\n" + "@LCL\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n" +
+    "@ARG\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n" + "@THIS\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n" + 
+    "@THAT\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n" + "@5\nD=A\n@#{nArgs}\nD=D+A\n@SP\nD=M-D\n@ARG\nM=D\n" + 
+    "@SP\nD=M\n@LCL\nM=D\n" + "@#{name}\n0;JMP\n" + "(U#{unique_symbol_counter})\n"    
+  end
+  
+  def init_code
+    "@256\nD=A\n@SP\nM=D\n" + call("Sys.init", "0")
   end
   
   private

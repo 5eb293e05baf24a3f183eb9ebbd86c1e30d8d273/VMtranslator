@@ -43,6 +43,7 @@ describe VmTranslator do
     
     context "when the translator returns 2 lines for each line in the input file" do
       before do
+        Translator.any_instance.stub(:init_code).and_return(nil)
         Translator.any_instance.stub(:arithmetic).and_return("translation\ntranslation\n")
       end
       

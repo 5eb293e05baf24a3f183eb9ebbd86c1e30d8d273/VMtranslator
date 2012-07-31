@@ -312,63 +312,90 @@ describe Translator do
   end
   
   describe "label" do
-    subject { @translator.label str }
+    subject { @translator.label(str, func_name) }
     
-    context "when the str is 'LOOP_START'" do
-      let(:str) { "LOOP_START" }
+    context "when the func_name is 'Class1.set'" do
+      let(:func_name) { "Class1.set" }
       
-      it "returns a correct translation" do
-        subject.should eq "(LOOP_START)\n"
+      context "when the str is 'LOOP_START'" do
+        let(:str) { "LOOP_START" }
+
+        it "returns a correct translation" do
+          subject.should eq "(Class1.set$LOOP_START)\n"
+        end
       end
+
+      context "when the str is 'END_PROGRAM'" do
+        let(:str) { "END_PROGRAM" }
+
+        it "returns a correct translation" do
+          subject.should eq "(Class1.set$END_PROGRAM)\n"
+        end
+      end      
     end
     
-    context "when the str is 'END_PROGRAM'" do
-      let(:str) { "END_PROGRAM" }
+    context "when the func_name is nil" do
+      let(:func_name) { nil }
       
-      it "returns a correct translation" do
-        subject.should eq "(END_PROGRAM)\n"
-      end
+      context "when the str is 'LOOP_START'" do
+        let(:str) { "LOOP_START" }
+
+        it "returns a correct translation" do
+          subject.should eq "($LOOP_START)\n"
+        end
+      end     
     end
+
   end
   
   describe "goto" do
-    subject { @translator.goto label }
+    subject { @translator.goto(label, func_name) }
     
-    context "when the label is 'LOOP_START'" do
-      let(:label) { "LOOP_START" }
+    context "when the func_name is 'Class1.set'" do
+      let(:func_name) { "Class1.set" }
       
-      it "returns a correct translation" do
-        subject.should eq "@LOOP_START\n0;JMP\n"
-      end
-    end
+      context "when the label is 'LOOP_START'" do
+        let(:label) { "LOOP_START" }
 
-    context "when the label is 'END_PROGRAM'" do
-      let(:label) { "END_PROGRAM" }
-      
-      it "returns a correct translation" do
-        subject.should eq "@END_PROGRAM\n0;JMP\n"
+        it "returns a correct translation" do
+          subject.should eq "@Class1.set$LOOP_START\n0;JMP\n"
+        end
       end
-    end    
+
+      context "when the label is 'END_PROGRAM'" do
+        let(:label) { "END_PROGRAM" }
+
+        it "returns a correct translation" do
+          subject.should eq "@Class1.set$END_PROGRAM\n0;JMP\n"
+        end
+      end        
+    end
+  
   end
   
   describe "if_goto" do
-    subject { @translator.if_goto label }
+    subject { @translator.if_goto(label, func_name) }
     
-    context "when the label is 'LOOP_START'" do
-      let(:label) { "LOOP_START" }
+    context "when the func_name is 'Class1.set'" do
+      let(:func_name) { "Class1.set" }
       
-      it "returns a correct translation" do
-        subject.should eq "@SP\nAM=M-1\nD=M\n@LOOP_START\nD;JNE\n"
-      end
-    end
+      context "when the label is 'LOOP_START'" do
+        let(:label) { "LOOP_START" }
 
-    context "when the label is 'END_PROGRAM'" do
-      let(:label) { "END_PROGRAM" }
-      
-      it "returns a correct translation" do
-        subject.should eq "@SP\nAM=M-1\nD=M\n@END_PROGRAM\nD;JNE\n"
+        it "returns a correct translation" do
+          subject.should eq "@SP\nAM=M-1\nD=M\n@Class1.set$LOOP_START\nD;JNE\n"
+        end
       end
-    end    
+
+      context "when the label is 'END_PROGRAM'" do
+        let(:label) { "END_PROGRAM" }
+
+        it "returns a correct translation" do
+          subject.should eq "@SP\nAM=M-1\nD=M\n@Class1.set$END_PROGRAM\nD;JNE\n"
+        end
+      end       
+    end
+   
   end
   
   describe "function" do
@@ -428,19 +455,74 @@ describe Translator do
   describe "call" do
     subject { @translator.call(name, nArgs) }
     
-    context "when the name is 'Class1.set'"do
+    context "when the name is 'Class1.set'" do
       let(:name) { "Class1.set" }
       
       context "when the nArgs is '2'" do
         let(:nArgs) { "2" }
         
         it "returns a correct translation" do
-          pending
-          subject.should eq ""
+          subject.should eq "@U1\nD=A\n@SP\nA=M\nM=D\n@SP\nM=M+1\n" + "@LCL\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n" +
+            "@ARG\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n" + "@THIS\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n" + 
+            "@THAT\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n" + "@5\nD=A\n@2\nD=D+A\n@SP\nD=M-D\n@ARG\nM=D\n" + 
+            "@SP\nD=M\n@LCL\nM=D\n" + "@Class1.set\n0;JMP\n" + "(U1)\n"
+        end     
+      end
+      
+      context "when the nArgs is '0'" do
+        let(:nArgs) { "0" }
+
+        it "returns a correct translation" do
+          subject.should eq "@U1\nD=A\n@SP\nA=M\nM=D\n@SP\nM=M+1\n" + "@LCL\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n" +
+            "@ARG\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n" + "@THIS\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n" + 
+            "@THAT\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n" + "@5\nD=A\n@0\nD=D+A\n@SP\nD=M-D\n@ARG\nM=D\n" + 
+            "@SP\nD=M\n@LCL\nM=D\n" + "@Class1.set\n0;JMP\n" + "(U1)\n"
         end
-        
       end
     end
+    
+    context "when the name is 'Main.fibonacci'" do
+      let(:name) { "Main.fibonacci" }
+      
+      context "when the nArgs is '1'" do
+        let(:nArgs) { "1" }
+        
+        it "returns a correct translation" do
+          subject.should eq "@U1\nD=A\n@SP\nA=M\nM=D\n@SP\nM=M+1\n" + "@LCL\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n" +
+            "@ARG\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n" + "@THIS\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n" + 
+            "@THAT\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n" + "@5\nD=A\n@1\nD=D+A\n@SP\nD=M-D\n@ARG\nM=D\n" + 
+            "@SP\nD=M\n@LCL\nM=D\n" + "@Main.fibonacci\n0;JMP\n" + "(U1)\n"
+        end     
+      end
+    end
+    
+    context "when there's a previous call" do
+      before { @translator.call("Class1.set", "2") }
+      
+      context "when the name is 'Class2.set' and the nArgs is '2'" do
+        let(:name) { "Class2.set" }
+        let(:nArgs) { "2" }
+        
+        it "returns a correct translation" do
+          subject.should eq "@U2\nD=A\n@SP\nA=M\nM=D\n@SP\nM=M+1\n" + "@LCL\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n" +
+            "@ARG\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n" + "@THIS\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n" + 
+            "@THAT\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n" + "@5\nD=A\n@2\nD=D+A\n@SP\nD=M-D\n@ARG\nM=D\n" + 
+            "@SP\nD=M\n@LCL\nM=D\n" + "@Class2.set\n0;JMP\n" + "(U2)\n"
+        end
+      end
+    end
+    
+  end
+  
+  describe "init_code" do
+    subject { @translator.init_code }
+    
+    it "returns a correct translation" do
+      subject.should eq "@256\nD=A\n@SP\nM=D\n" + "@U1\nD=A\n@SP\nA=M\nM=D\n@SP\nM=M+1\n" + "@LCL\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n" +
+        "@ARG\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n" + "@THIS\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n" + 
+        "@THAT\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n" + "@5\nD=A\n@0\nD=D+A\n@SP\nD=M-D\n@ARG\nM=D\n" + 
+        "@SP\nD=M\n@LCL\nM=D\n" + "@Sys.init\n0;JMP\n" + "(U1)\n"
+    end    
   end
   
 end

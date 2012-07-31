@@ -24,9 +24,12 @@ class VmTranslator
   end
   
   def run
-    @filenames = @filenames.gsub("\\", '/') 
+    #ini code
+    @output_file.print @translator.init_code
     
-    Dir.glob(@filenames) do |filename|      
+    @filenames = @filenames.gsub("\\", '/') 
+    Dir.glob(@filenames) do |filename|
+      cur_func_name = nil      
       File.open(filename).each_line do |line|
         line = sanitize line
         next if line.empty?
@@ -42,15 +45,18 @@ class VmTranslator
           file_basename = File.basename(filename, ".vm")
           translation = @translator.push_pop(command_type, arg1, arg2, file_basename)
         when :LABEL
-          translation = @translator.label @parser.arg1(line)
+          translation = @translator.label(@parser.arg1(line), cur_func_name)
         when :GOTO
-          translation = @translator.goto @parser.arg1(line)
+          translation = @translator.goto(@parser.arg1(line), cur_func_name)
         when :IF
-          translation = @translator.if_goto @parser.arg1(line)
+          translation = @translator.if_goto(@parser.arg1(line), cur_func_name)
         when :FUNCTION
-          translation = @translator.function(@parser.arg1(line), @parser.arg2(line))
+          cur_func_name = @parser.arg1(line)
+          translation = @translator.function(cur_func_name, @parser.arg2(line))
         when :RETURN
           translation = @translator.ret
+        when :CALL
+          translation = @translator.call(@parser.arg1(line), @parser.arg2(line))
         end
         
         @output_file.print translation
@@ -64,7 +70,7 @@ class VmTranslator
     def sanitize str
       str.split("//").first.strip
     end
-    
+       
 end
 
 

@@ -74,7 +74,15 @@ describe Parser do
       it "should return :RETURN" do
         subject.should eq :RETURN
       end
-    end 
+    end
+    
+    context "when the command is 'call Main.fibonacci 1'" do
+      let(:command) { "call Main.fibonacci 1" }
+      
+      it "should return :CALL" do
+        subject.should eq :CALL
+      end      
+    end
     
     
   end
@@ -119,6 +127,14 @@ describe Parser do
       
       it "should return 'LOOP_START'" do
         subject.should eq 'LOOP_START'
+      end
+    end
+    
+   context "when the command is 'function Class1.set 0'" do
+      let(:command) { "function Class1.set 0" }
+      
+      it "should return 'Class1.set'" do
+        subject.should eq 'Class1.set'
       end
     end
   end

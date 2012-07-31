@@ -24,6 +24,8 @@ class Parser
       :FUNCTION
     when 'return'
       :RETURN
+    when 'call'
+      :CALL
     end
     
   end
