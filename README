@@ -1,3 +1,1 @@
-== VMtranslator
-
-You should document your project here.
+This program scans a .vm file (source code for a stack machine) and then creates the corresponding assembly code (only for a custom CPU, not for the ARM or the x86 architecture). 
